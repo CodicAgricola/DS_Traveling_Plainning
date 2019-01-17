@@ -5,68 +5,57 @@
 
 using namespace std;
 
-struct vertex {
-    typedef pair<int, vertex*> ve;
-    vector<ve> adj; //cost of edge, destination vertex
-    string name;
-    int h, open, close;
-    vertex(string s, int happiness, int open_time, int close_time) : name(s), h(happiness), 
-    open(open_time), close(close_time) {}
-};
-
-class graph {
-public:
-    typedef map<string, vertex *> vmap;
-    vmap work;
-    void addvertex(const string&, const int h, const int open_time, const int close_time);
-    void addedge(const string& from, const string& to, int cost);
-    void printMap();
-};
-
-void graph::addvertex(const string &name, const int h, const int open_time, const int close_time) {
-    vmap::iterator itr = work.find(name);
-    if (itr == work.end()) {
-        vertex *v;
-        v = new vertex(name, h, open_time, close_time);
-        work[name] = v;
-        return;
-    }
-    cout << "\nVertex already exists!";
-}
-
-void graph::addedge(const string& from, const string& to, int cost) {
-    vertex *f = (work.find(from)->second);
-    vertex *t = (work.find(to)->second);
-    pair<int, vertex *> edge = make_pair(cost, t);
-    f->adj.push_back(edge);
-}
-
-void graph::printMap() {
-    vmap::iterator itr;
-
-    for(itr = work.begin(); itr != work.end(); itr++) {
-        cout << itr->first << " " << work[itr->first]
-    }
-}
-
 int main() {
-    graph map;
+    string map[110];
+    int happiness[110];
+    int open[110];
+    int close[110];
+    bool visited[110];
+    int edge[110][110];
     int n, m;
     int t, b;
 
     cin>>n>>m>>t>>b;
 
+    //initialize
+    for(int i = 0; i<n; i++) {
+        visited[i] = false;
+        for(int j = 0; j<n; j++) {
+            edge[i][j] = -1;
+        }
+    }
+    //input vertex
     for(int i = 0; i<n; i++) {
         string name;
         int h, open_time, close_time;
         cin >> name >> h >> open_time >> close_time;
-        map.addvertex(name, h, open_time, close_time);
+        map[i] = name;
+        happiness[i] = h;
+        open[i] = open_time;
+        close[i] = close_time;
     }
+    //input edge
     for(int i = 0; i<m; i++) {
         string from, to;
         int cost;
+        int from_id = -1;
+        int to_id = -1;
         cin >> from >> to >> cost;
-        map.addedge(from, to, cost);
+        //find from
+        for(int j = 0; j<n; j++) {
+            if(from == map[j]) from_id = j;
+            if(to == map[j]) to_id = j;
+            if(from_id != -1 && to_id != -1) break; // founded
+        }
+        edge[from_id][to_id] = cost;
+        edge[to_id][from_id] = cost;
     }
-    map.printMap();
+
+    for(int i = 0; i<n; i++) {
+        cout << map[i] << " " << happiness[i] << " " << open[i] << " " << close[i];
+        for(int j = 0; j<n; j++) {
+            if(edge[i][j] != -1) cout << " " << edge[i][j];
+        }
+        cout << endl;
+    }
 }
